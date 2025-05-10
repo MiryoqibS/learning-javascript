@@ -1,4 +1,212 @@
 /*
+== Задание 1 с сайта ==
+Переведите текст вида border-left-width в borderLeftWidth
+Напишите функцию camelize(str), которая преобразует строки вида «my-short-string» в «myShortString».
+
+То есть дефисы удаляются, а все слова после них получают заглавную букву.
+
+camelize("background-color") == 'backgroundColor';
+camelize("list-style-image") == 'listStyleImage';
+camelize("-webkit-transition") == 'WebkitTransition';
+P.S. Подсказка: используйте split, чтобы разбить строку на массив символов, потом переделайте всё как нужно и методом join соедините обратно.
+*/
+
+const camelize = (str = "") => {
+    return str.split("-").map((word, index) => index === 0 ?
+        word.toLowerCase() :
+        word[0].toUpperCase() + word.slice(1).toLowerCase())
+        .join("");
+};
+
+console.log(camelize("background-color"));
+console.log(camelize("list-style-image"));
+console.log(camelize("-webkit-transition"));
+
+/*
+== Задание 2 с сайта ==
+Фильтрация по диапазону
+Напишите функцию filterRange(arr, a, b), которая принимает массив arr, ищет элементы со значениями больше или равными a и меньше или равными b и возвращает результат в виде массива.
+
+Функция должна возвращать новый массив и не изменять исходный.
+
+let arr = [5, 3, 8, 1];
+let filtered = filterRange(arr, 1, 4);
+alert( filtered ); // 3,1 (совпадающие значения)
+alert( arr ); // 5,3,8,1 (без изменений)
+*/
+
+const filterRange = (arr, a, b) => {
+    return arr.filter((number) => number >= a && number <= b);
+};
+
+console.log(filterRange([5, 3, 8, 1], 1, 4));
+
+/*
+== Задание 3 с сайта ==
+Фильтрация по диапазону "на месте"
+Напишите функцию filterRangeInPlace(arr, a, b), которая принимает массив arr и удаляет из него все значения кроме тех, которые находятся между a и b. То есть, проверка имеет вид a ≤ arr[i] ≤ b.
+
+Функция должна изменять принимаемый массив и ничего не возвращать.
+
+Например:
+
+let arr = [5, 3, 8, 1];
+filterRangeInPlace(arr, 1, 4); // удалены числа вне диапазона 1..4
+alert( arr ); // [3, 1]
+*/
+
+const filterRangeInPlace = (arr, a, b) => {
+    arr.forEach((number, index) => {
+        if (a <= number <= b) {
+            arr.splice(index, 1);
+        };
+    });
+};
+
+let arr = [5, 3, 8, 1, 3, 2];
+filterRangeInPlace(arr, 1, 4);
+console.log(arr);
+
+/*
+== Задание 4 с сайта ==
+Сортировать в порядке по убыванию
+let arr = [5, 2, 1, -10, 8];
+
+alert( arr ); // 8, 5, 2, 1, -10
+*/
+
+const sortDecrease = (arr) => {
+    return arr.sort((a, b) => b - a);
+};
+
+console.log(sortDecrease([5, 2, 1, -10, 8]));
+
+/*
+== Задание 5 с сайта ==
+Скопировать и отсортировать массив
+У нас есть массив строк arr. Нужно получить отсортированную копию, но оставить arr неизменённым.
+
+Создайте функцию copySorted(arr), которая будет возвращать такую копию.
+
+let arr = ["HTML", "JavaScript", "CSS"];
+
+let sorted = copySorted(arr);
+
+alert( sorted ); // CSS, HTML, JavaScript
+alert( arr ); // HTML, JavaScript, CSS (без изменений)
+*/
+
+const copySorted = (arr) => {
+    return [...arr].sort();
+};
+
+let skills = ["HTML", "JavaScript", "CSS"];
+
+let sorted = copySorted(skills);
+
+console.log(skills);
+console.log(sorted);
+
+/*
+== Задание 6 с сайта ==
+Создать расширяемый калькулятор
+Создайте функцию конструктор Calculator, которая создаёт «расширяемые» объекты калькулятора.
+
+Задание состоит из двух частей.
+Во-первых, реализуйте метод calculate(str), который принимает строку типа "1 + 2" в формате «ЧИСЛО оператор ЧИСЛО» (разделено пробелами) и возвращает результат. Метод должен понимать плюс + и минус -.
+Пример использования:
+let calc = new Calculator;
+alert( calc.calculate("3 + 7") ); // 10
+Затем добавьте метод addMethod(name, func), который добавляет в калькулятор новые операции. Он принимает оператор name и функцию с двумя аргументами func(a,b), которая описывает его.
+Например, давайте добавим умножение *, деление / и возведение в степень **:
+let powerCalc = new Calculator;
+powerCalc.addMethod("*", (a, b) => a * b);
+powerCalc.addMethod("/", (a, b) => a / b);
+powerCalc.addMethod("**", (a, b) => a ** b);
+let result = powerCalc.calculate("2 ** 3");
+alert( result ); // 8
+Для этой задачи не нужны скобки или сложные выражения.
+Числа и оператор разделены ровно одним пробелом.
+Не лишним будет добавить обработку ошибок.
+*/
+
+function Calculator() {
+    this.methods = {
+        "+": (a, b) => a + b,
+    };
+
+    this.calculate = function (str) {
+        let split = str.split(" ");
+        let a = Number(split[0]);
+        let operator = split[1];
+        let b = Number(split[2]);
+
+        if (!this.methods[operator] || isNaN(a) || isNaN(b)) return NaN;
+
+        return (this.methods[operator](a, b)).toFixed(2)
+    };
+
+    this.addMethod = function(operator, func) {
+        this.methods[operator] = func;
+    };
+};
+
+let powerCalc = new Calculator;
+powerCalc.addMethod("*", (a, b) => a * b);
+powerCalc.addMethod("-", (a, b) => a - b);
+powerCalc.addMethod("/", (a, b) => a / b);
+powerCalc.addMethod("**", (a, b) => a ** b);
+console.log(powerCalc.calculate("1 + 2"));
+console.log(powerCalc.calculate("15 + 23"));
+console.log(powerCalc.calculate("15 - 23"));
+console.log(powerCalc.calculate("15 ** 2"));
+console.log(powerCalc.calculate("15 / 23"));
+
+
+/*
+== Задание 7 с сайта ==
+Трансформировать в массив имён
+У вас есть массив объектов user, и в каждом из них есть user.name. Напишите код, который преобразует их в массив имён.
+
+Например:
+
+let vasya = { name: "Вася", age: 25 };
+let petya = { name: "Петя", age: 30 };
+let masha = { name: "Маша", age: 28 };
+
+let users = [ vasya, petya, masha ];
+
+let names = // ... ваш код 
+
+alert( names ); // Вася, Петя, Маша
+*/
+
+// Я сделал friend массив потому-что users используется в коде
+let friends = [
+    {
+        name: "Вася",
+        age: 25,
+    }, 
+    {
+        name: "Маша",
+        age: 19,
+    },
+    {
+        name: "Катя",
+        age: 22,
+    },
+    {
+        name: "Петя",
+        age: 35,
+    },
+];
+
+let names = friends.map(({ name }) => name);
+
+console.log(names);
+
+
+/*
 == Задание 1 от ChatGpt ==
 🔁 forEach
 Задание:
@@ -334,7 +542,7 @@ const users2 = [
 ];
 
 const isSomeoneOnline = users2.some(user => user.online);
-console.log(isSomeoneOnline); 
+console.log(isSomeoneOnline);
 
 const allEmailsConfirmed = users2.every(user => user.emailConfirmed);
 console.log(allEmailsConfirmed); 
