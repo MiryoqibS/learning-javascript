@@ -24,7 +24,7 @@ P.S.: Этот декоратор иногда полезен для юнит-т
 
 function work(a, b) {
     console.log(a + b); // произвольная функция или метод
-}
+};
 
 function spy(func) {
     function wrapper(...args) {
@@ -58,12 +58,9 @@ f1500("test"); // показывает "test" после 1500 мс
 В приведённом выше коде f – функция с одним аргументом, но ваше решение должно передавать все аргументы и контекст this.
 */
 
-const delay = (func, delay) => {
+const delay = (func, ms) => {
     return function (...args) {
-        const context = this;
-        setTimeout(() => {
-            return func.apply(context, args);
-        }, delay);
+        setTimeout(() => func.apply(this, args), ms);
     };
 };
 
@@ -77,18 +74,6 @@ let f1500 = delay(f, 1500);
 
 f1000("test"); // показывает "test" после 1000 мс
 f1500("test"); // показывает "test" после 1500 мс
-
-const user = {
-    name: "Мирёкуб",
-    say(greeting) {
-        console.log(`${greeting}, I'm ${this.name}`);
-    },
-};
-
-// А теперь задержим это:
-user.say = delay(user.say, 1000);
-
-user.say("Hi"); // 👉 "Hi, I'm Мирёкуб"
 
 /*
 == Задание 3 с сайта ==
@@ -106,14 +91,15 @@ setTimeout(() => f("c"), 500);  // выполнится только этот �
 const debounce = (func, delay) => {
     let timeoutId;
 
-    return function(text) {
+    return function (...args) {
         clearTimeout(timeoutId);
 
-        timeoutId = setTimeout(()=>{
-            func.apply(this, arguments)
-        }, delay)
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
     };
-}
+};
+
 let f2 = (x) => console.log(x);
 let debouncedF = debounce(f2, 1000);
 
@@ -144,21 +130,35 @@ f1000(3); // игнорируется
 // После 1000 мс:
 // вызывается f(3) с последними аргументами
 */
-
 const throttle = (func, ms) => {
-    let call = false;
+    let isThrottled = false;
+    let savedArgs = null;
+    let savedThis = null;
 
-    return function() {
-        if (!call) {
-            func.apply(this, arguments);
-
-            call = true;
-
-            setTimeout(()=>{
-                call = false;
-            }, ms)
+    function wrapper(...args) {
+        if (isThrottled) {
+            // сохраняем последние аргументы и контекст
+            savedArgs = args;
+            savedThis = this;
+            return;
         }
-    };
+
+        func.apply(this, args);
+
+        isThrottled = true;
+
+        setTimeout(() => {
+            isThrottled = false;
+
+            if (savedArgs) {
+                wrapper.apply(savedThis, savedArgs);
+                savedArgs = null;
+                savedThis = null;
+            }
+        }, ms);
+    }
+
+    return wrapper;
 };
 
 function f(a) {
